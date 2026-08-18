@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native builds (managed workflow keeps these out of git)
+ios/
+android/
+
+# credentials and secrets
+.env
+.env.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# misc
+*.log
+.DS_Store
+*.tsbuildinfo
