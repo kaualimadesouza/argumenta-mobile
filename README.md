@@ -29,8 +29,12 @@ projeto Argumenta MVP.
 
 ```bash
 npm install
+cp .env.example .env  # aponte EXPO_PUBLIC_API_URL para o IP da sua máquina, não localhost
 npx expo start
 ```
+
+Login por e-mail/senha já funciona contra a API. Para o login com Google,
+veja [docs/google-sign-in-setup.md](docs/google-sign-in-setup.md).
 
 ## Releases
 
