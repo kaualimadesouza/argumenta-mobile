@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Argumenta",
-    "slug": "argumenta-mobile",
+    "slug": "argumenta-ai",
     "scheme": "argumenta",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -41,6 +41,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "06ee4197-3732-4f70-a6a9-17775c0e16f8"
+      }
     }
   }
 }
