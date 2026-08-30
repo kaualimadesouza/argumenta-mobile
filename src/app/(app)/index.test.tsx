@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react-native'
-
-import { colors, fontFamily } from '@/styles/tokens'
+import { ApiContext } from '@/api/context'
+import { createFakeApi } from '@/api/__fixtures__/fakeApi'
+import { aTrackResponse, aTrackStoryResponse } from '@/api/__fixtures__/track'
 
 import HomeScreen from './index'
 
@@ -9,26 +10,95 @@ jest.mock('@/hooks/useAppFonts', () => ({
   useAppFonts: () => mockUseAppFonts(),
 }))
 
-describe('HomeScreen', () => {
-  it('shows the product name on the paper background', async () => {
-    mockUseAppFonts.mockReturnValue(true)
-    await render(<HomeScreen />)
+const mockRouter = { push: jest.fn() }
+jest.mock('expo-router', () => ({
+  useRouter: () => mockRouter,
+}))
 
-    expect(screen.getByText('Argumenta')).toBeTruthy()
-    expect(screen.getByTestId('home-screen')).toHaveStyle({ backgroundColor: colors.paper })
+describe('Trilha (HomeScreen)', () => {
+  beforeEach(() => {
+    mockUseAppFonts.mockReturnValue(true)
+    mockRouter.push.mockReset()
   })
 
-  it('falls back to the system font while Inter is still downloading', async () => {
-    mockUseAppFonts.mockReturnValue(false)
-    await render(<HomeScreen />)
+  it('renders habit chips with tabular-nums', async () => {
+    const api = createFakeApi({
+      track: jest.fn().mockResolvedValue(aTrackResponse({ streak_days: 12, submissions_today: 1, daily_limit: 3 })),
+    })
 
-    expect(screen.getByText('Argumenta')).not.toHaveStyle({ fontFamily: fontFamily.bold })
+    await render(
+      <ApiContext.Provider value={api}>
+        <HomeScreen />
+      </ApiContext.Provider>,
+    )
+
+    const streakChip = await screen.findByText('12')
+    expect(streakChip).toHaveStyle({ fontVariant: ['tabular-nums'] })
+
+    const submissionsChip = await screen.findByText('1/3')
+    expect(submissionsChip).toHaveStyle({ fontVariant: ['tabular-nums'] })
   })
 
-  it('switches to Inter once the fonts finish loading', async () => {
-    mockUseAppFonts.mockReturnValue(true)
-    await render(<HomeScreen />)
+  it('renders locked story card without CTA', async () => {
+    const api = createFakeApi({
+      track: jest.fn().mockResolvedValue(
+        aTrackResponse({
+          stories: [aTrackStoryResponse({ title: 'Locked Story', state: 'locked' })],
+        }),
+      ),
+    })
 
-    expect(screen.getByText('Argumenta')).toHaveStyle({ fontFamily: fontFamily.bold })
+    await render(
+      <ApiContext.Provider value={api}>
+        <HomeScreen />
+      </ApiContext.Provider>,
+    )
+
+    expect(await screen.findByText('Locked Story')).toBeTruthy()
+    expect(screen.queryByText('Continuar')).toBeNull()
+  })
+
+  it('renders available/in_progress story card with CTA', async () => {
+    const api = createFakeApi({
+      track: jest.fn().mockResolvedValue(
+        aTrackResponse({
+          stories: [
+            aTrackStoryResponse({ title: 'Available Story', state: 'available', chapters_passed: 1, chapters_total: 5 }),
+          ],
+        }),
+      ),
+    })
+
+    await render(
+      <ApiContext.Provider value={api}>
+        <HomeScreen />
+      </ApiContext.Provider>,
+    )
+
+    expect(await screen.findByText('Available Story')).toBeTruthy()
+    expect(screen.getByText('Cap. 1/5')).toBeTruthy()
+    expect(screen.getByText('Começar capítulo 1')).toBeTruthy()
+  })
+
+  it('renders completed story card with approved seal and no CTA', async () => {
+    const api = createFakeApi({
+      track: jest.fn().mockResolvedValue(
+        aTrackResponse({
+          stories: [
+            aTrackStoryResponse({ title: 'Completed Story', state: 'completed', chapters_passed: 5, chapters_total: 5 }),
+          ],
+        }),
+      ),
+    })
+
+    await render(
+      <ApiContext.Provider value={api}>
+        <HomeScreen />
+      </ApiContext.Provider>,
+    )
+
+    expect(await screen.findByText('Completed Story')).toBeTruthy()
+    expect(screen.queryByText('Continuar')).toBeNull()
+    expect(screen.getByText('Concluída')).toBeTruthy() 
   })
 })

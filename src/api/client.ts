@@ -9,6 +9,8 @@ import type {
   RegisterRequest,
   TargetResponse,
   UserResponse,
+  TrackResponse,
+  ChapterResponse,
 } from './types'
 
 const NO_CONTENT = 204
@@ -26,6 +28,8 @@ export interface ArgumentaApi {
   updateNickname(nickname: string): Promise<UserResponse>
   addTarget(body: AddTargetRequest): Promise<TargetResponse>
   activateTarget(targetId: string): Promise<void>
+  track(): Promise<TrackResponse>
+  chapter(id: string): Promise<ChapterResponse>
 }
 
 function apiUrl(path: string): string {
@@ -106,5 +110,7 @@ export function createHttpApi(): ArgumentaApi {
     updateNickname: (nickname) => request('/me', 'PATCH', { nickname }),
     addTarget: (body) => request('/me/targets', 'POST', body),
     activateTarget: (targetId) => request(`/me/targets/${targetId}/activate`, 'PUT'),
+    track: () => request('/track', 'GET'),
+    chapter: (id) => request(`/chapters/${id}`, 'GET'),
   }
 }
