@@ -12,6 +12,55 @@ jest.mock('expo-router', () => ({
 jest.mock('@/hooks/useAppFonts', () => ({ useAppFonts: () => true }))
 
 describe('CorrecaoScreen', () => {
+  it('renders full scoreboard (C5 and total) when lens includes them', async () => {
+    const api = createFakeApi({
+      submission: jest.fn().mockResolvedValue({
+        submission_id: 'sub-2',
+        attempt_number: 1,
+        status: 'evaluated',
+        result: {
+          verdict: 'approved',
+          average_score: 960,
+          floor_value: 120,
+          min_average: 600,
+          chapter_status: 'passed',
+          scores: [],
+          annotations: [],
+          para_passar: [],
+          lens: { 
+            exam: 'enem', 
+            version: '1', 
+            criteria: [
+              { code: 'C1', label: 'Domínio', dimension: 'norma_culta', score: 160, scale_max: 200, is_argumenta_extra: false },
+              { code: 'C5', label: 'Proposta', dimension: 'proposta_intervencao', score: 200, scale_max: 200, is_argumenta_extra: false },
+            ], 
+            total: 960, 
+            total_max: 1000, 
+            scale_source: 'board' 
+          },
+        },
+      }),
+      chapter: jest.fn().mockResolvedValue(aChapterResponse({ draft_body: 'Texto bom.' })),
+    })
+
+    render(
+      <ApiContext.Provider value={api}>
+        <CorrecaoScreen />
+      </ApiContext.Provider>
+    )
+
+    await waitFor(() => expect(screen.getByText('Placar')).toBeTruthy())
+    
+    // Check that C5 is rendered
+    expect(screen.getByText('C5')).toBeTruthy()
+    expect(screen.getByText('Proposta')).toBeTruthy()
+    expect(screen.getByText('200/200')).toBeTruthy()
+
+    // Check that total is rendered
+    expect(screen.getByText('Soma dos critérios')).toBeTruthy()
+    expect(screen.getByText('960/1000')).toBeTruthy()
+  })
+
   beforeEach(() => {
     mockRouter.replace.mockReset()
   })

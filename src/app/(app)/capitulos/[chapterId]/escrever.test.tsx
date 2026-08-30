@@ -13,6 +13,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ chapterId: 'chapter-1' }),
 }))
 jest.mock('@/hooks/useAppFonts', () => ({ useAppFonts: () => true }))
+jest.mock('@/session/context', () => ({ useLens: () => 'enem' }))
 jest.mock('@/api/verdict', () => ({ awaitVerdict: jest.fn() }))
 jest.mock('./useAutosave', () => ({
   useAutosave: () => 'clean',
@@ -20,6 +21,23 @@ jest.mock('./useAutosave', () => ({
 }))
 
 describe('Editor (EscreverScreen)', () => {
+  it('renders chefe layout correctly', async () => {
+    const api = createFakeApi({
+      chapter: jest.fn().mockResolvedValue(aChapterResponse({ kind: 'chefe' })),
+      track: jest.fn().mockResolvedValue(aTrackResponse()),
+    })
+
+    render(
+      <ApiContext.Provider value={api}>
+        <EscreverScreen />
+      </ApiContext.Provider>,
+    )
+
+    await waitFor(() => expect(screen.getByText('Redação-chefe')).toBeTruthy())
+    expect(screen.getByText('A proposta')).toBeTruthy()
+    expect(screen.getByText('Proposta de intervenção')).toBeTruthy()
+  })
+
   beforeEach(() => {
     mockRouter.push.mockReset()
     mockRouter.replace.mockReset()
