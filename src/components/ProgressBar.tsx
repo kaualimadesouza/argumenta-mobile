@@ -19,7 +19,7 @@ export function ProgressBar({
   floor,
   tone = 'caneta',
 }: ProgressBarProps) {
-  let backgroundColor = colors.caneta
+  let backgroundColor: string = colors.caneta
   if (done) {
     backgroundColor = colors.aprovado
   } else if (tone === 'alert') {

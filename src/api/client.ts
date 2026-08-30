@@ -11,6 +11,11 @@ import type {
   UserResponse,
   TrackResponse,
   ChapterResponse,
+  DraftRequest,
+  SubmissionRequest,
+  PendingSubmissionResponse,
+  SubmissionStateResponse,
+  TelemetryBatchRequest,
 } from './types'
 
 const NO_CONTENT = 204
@@ -30,6 +35,10 @@ export interface ArgumentaApi {
   activateTarget(targetId: string): Promise<void>
   track(): Promise<TrackResponse>
   chapter(id: string): Promise<ChapterResponse>
+  draft(chapterId: string, body: DraftRequest): Promise<void>
+  submit(chapterId: string, body: SubmissionRequest): Promise<PendingSubmissionResponse>
+  submission(id: string): Promise<SubmissionStateResponse>
+  telemetry(body: TelemetryBatchRequest): Promise<void>
 }
 
 function apiUrl(path: string): string {
@@ -112,5 +121,9 @@ export function createHttpApi(): ArgumentaApi {
     activateTarget: (targetId) => request(`/me/targets/${targetId}/activate`, 'PUT'),
     track: () => request('/track', 'GET'),
     chapter: (id) => request(`/chapters/${id}`, 'GET'),
+    draft: (chapterId, body) => request(`/chapters/${chapterId}/draft`, 'PUT', body),
+    submit: (chapterId, body) => request(`/chapters/${chapterId}/submissions`, 'POST', body),
+    submission: (id) => request(`/submissions/${id}`, 'GET'),
+    telemetry: (body) => request('/telemetry/events', 'POST', body),
   }
 }
