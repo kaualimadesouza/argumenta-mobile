@@ -73,3 +73,8 @@ Para gerar o APK:
    Após a primeira build, rode \`npx eas-cli credentials -p android\` para ver o SHA-1 do keystore gerenciado pelo EAS. Cadastre esse SHA-1 num novo OAuth Client Android no Google Cloud Console com o package \`com.argumenta.mobile\`. Sem isso, o login por e-mail funciona, mas o botão do Google falhará.
 
 5. Ao fim do build, o EAS fornecerá um link para baixar o APK (`.apk`). Instale no seu aparelho e teste o fluxo completo!
+
+Se o build falhar, veja
+[docs/eas-build-troubleshooting.md](docs/eas-build-troubleshooting.md): os
+problemas já conhecidos (e resolvidos) estão documentados lá, com o passo a
+passo para ler o log de qualquer build pela CLI.
