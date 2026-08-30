@@ -40,7 +40,7 @@ describe('CorrecaoScreen', () => {
       reaction: jest.fn().mockResolvedValue({ beat: 'convinced', character_name: 'Boss', body: 'OK', provisional: false }),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <CorrecaoScreen />
       </ApiContext.Provider>
@@ -81,7 +81,7 @@ describe('CorrecaoScreen', () => {
       chapter: jest.fn().mockResolvedValue(aChapterResponse({ draft_body: 'Texto bom.' })),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <CorrecaoScreen />
       </ApiContext.Provider>
@@ -125,7 +125,7 @@ describe('CorrecaoScreen', () => {
       reaction: jest.fn().mockResolvedValue({ beat: 'convinced', character_name: 'Boss', body: 'Muito bem!', provisional: true }),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <CorrecaoScreen />
       </ApiContext.Provider>
@@ -134,7 +134,7 @@ describe('CorrecaoScreen', () => {
     await waitFor(() => expect(screen.getByText('Muito bem!')).toBeTruthy())
     
     // Tap to advance
-    fireEvent.press(screen.getByText('Continuar a história'))
+    await fireEvent.press(screen.getByText('Continuar a história'))
     expect(mockRouter.replace).toHaveBeenCalledWith('/trilha')
   })
 
@@ -161,7 +161,7 @@ describe('CorrecaoScreen', () => {
       chapter: jest.fn().mockResolvedValue(aChapterResponse({ draft_body: 'Texto ruim.' })),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <CorrecaoScreen />
       </ApiContext.Provider>
@@ -169,13 +169,14 @@ describe('CorrecaoScreen', () => {
 
     await waitFor(() => expect(screen.getByText('Quase. A norma culta segurou você.')).toBeTruthy())
 
-    // Tap span to see explanation
-    fireEvent.press(screen.getByText('Texto'))
-    await waitFor(() => expect(screen.getByText('Erro aqui')).toBeTruthy())
-    expect(screen.getByText('Assado')).toBeTruthy() // suggestion
+    // Tap span to open the explanation sheet: the suggestion lives only there,
+    // while the message also appears in the legend, hence two occurrences.
+    await fireEvent.press(screen.getByText('Texto'))
+    await waitFor(() => expect(screen.getByText('Assado')).toBeTruthy())
+    expect(screen.getAllByText('Erro aqui')).toHaveLength(2)
 
     // Tap to go back
-    fireEvent.press(screen.getByText('Revisar meu texto'))
+    await fireEvent.press(screen.getByText('Revisar meu texto'))
     expect(mockRouter.replace).toHaveBeenCalledWith('/capitulos/chapter-1/escrever')
   })
 
@@ -201,7 +202,7 @@ describe('CorrecaoScreen', () => {
       reaction: jest.fn().mockResolvedValue({ beat: 'rebuttal', character_name: 'Boss', body: 'Não ligo.', provisional: false }),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <CorrecaoScreen />
       </ApiContext.Provider>
@@ -209,7 +210,7 @@ describe('CorrecaoScreen', () => {
 
     await waitFor(() => expect(screen.getByText('Não ligo.')).toBeTruthy())
 
-    fireEvent.press(screen.getByText('Ver o que aconteceu'))
+    await fireEvent.press(screen.getByText('Ver o que aconteceu'))
     expect(mockRouter.replace).toHaveBeenCalledWith({
       pathname: '/capitulos/chapter-1/consequencia',
       params: { submissionId: 'sub-1' },

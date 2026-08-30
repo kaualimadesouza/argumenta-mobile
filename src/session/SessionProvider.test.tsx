@@ -53,7 +53,7 @@ describe('SessionProvider', () => {
     await renderWithApi(api)
     await screen.findByText('authenticated:Kaua')
 
-    fireEvent.press(screen.getByText('sair'))
+    await fireEvent.press(screen.getByText('sair'))
 
     await screen.findByText('anonymous')
     expect(api.removePushDevice).toHaveBeenCalledWith({ token: 'ExponentPushToken[mocked]' })

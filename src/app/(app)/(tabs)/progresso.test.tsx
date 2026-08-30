@@ -52,7 +52,7 @@ describe('ProgressoScreen', () => {
       }),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <Progresso />
       </ApiContext.Provider>

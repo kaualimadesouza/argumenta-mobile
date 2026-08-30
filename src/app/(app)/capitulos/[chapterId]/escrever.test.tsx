@@ -27,7 +27,7 @@ describe('Editor (EscreverScreen)', () => {
       track: jest.fn().mockResolvedValue(aTrackResponse()),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <EscreverScreen />
       </ApiContext.Provider>,
@@ -50,7 +50,7 @@ describe('Editor (EscreverScreen)', () => {
       track: jest.fn().mockResolvedValue(aTrackResponse({ submissions_today: 0, daily_limit: 3 })),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <EscreverScreen />
       </ApiContext.Provider>,
@@ -64,12 +64,12 @@ describe('Editor (EscreverScreen)', () => {
     expect(screen.getByText('Enviar')).toBeDisabled()
 
     // Under limit
-    fireEvent.changeText(input, 'one two')
+    await fireEvent.changeText(input, 'one two')
     await waitFor(() => expect(screen.getByText('2 / 20 palavras')).toBeTruthy())
     expect(screen.getByText('Enviar')).toBeDisabled()
 
     // Good
-    fireEvent.changeText(input, 'one two three')
+    await fireEvent.changeText(input, 'one two three')
     await waitFor(() => expect(screen.getByText('3 / 20 palavras')).toBeTruthy())
     expect(screen.getByText('Enviar')).not.toBeDisabled()
   })
@@ -89,7 +89,7 @@ describe('Editor (EscreverScreen)', () => {
       submission: { ...mockPending, status: 'evaluated', score: 900 } as any,
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <EscreverScreen />
       </ApiContext.Provider>,
@@ -97,10 +97,10 @@ describe('Editor (EscreverScreen)', () => {
 
     await waitFor(() => expect(screen.getByTestId('editor-input')).toBeTruthy())
 
-    fireEvent.changeText(screen.getByTestId('editor-input'), 'one two three')
+    await fireEvent.changeText(screen.getByTestId('editor-input'), 'one two three')
     await waitFor(() => expect(screen.getByText('Enviar')).not.toBeDisabled())
 
-    fireEvent.press(screen.getByText('Enviar'))
+    await fireEvent.press(screen.getByText('Enviar'))
 
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith({
@@ -123,17 +123,17 @@ describe('Editor (EscreverScreen)', () => {
     const mockVerdict = jest.mocked(awaitVerdict)
     mockVerdict.mockResolvedValueOnce({ status: 'failed' })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <EscreverScreen />
       </ApiContext.Provider>,
     )
 
     await waitFor(() => expect(screen.getByTestId('editor-input')).toBeTruthy())
-    fireEvent.changeText(screen.getByTestId('editor-input'), 'good')
+    await fireEvent.changeText(screen.getByTestId('editor-input'), 'good')
     await waitFor(() => expect(screen.getByText('Enviar')).not.toBeDisabled())
     
-    fireEvent.press(screen.getByText('Enviar'))
+    await fireEvent.press(screen.getByText('Enviar'))
 
     await waitFor(() => {
       expect(screen.getByText('A correção falhou aqui do nosso lado. Seu envio de hoje foi devolvido, tente de novo.')).toBeTruthy()
@@ -147,14 +147,14 @@ describe('Editor (EscreverScreen)', () => {
       track: jest.fn().mockResolvedValue(aTrackResponse({ submissions_today: 3, daily_limit: 3 })),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <EscreverScreen />
       </ApiContext.Provider>,
     )
 
     await waitFor(() => expect(screen.getByTestId('editor-input')).toBeTruthy())
-    fireEvent.changeText(screen.getByTestId('editor-input'), 'good')
+    await fireEvent.changeText(screen.getByTestId('editor-input'), 'good')
     
     await waitFor(() => expect(screen.getByText('Enviar')).toBeDisabled())
   })

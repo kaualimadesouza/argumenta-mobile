@@ -48,7 +48,7 @@ describe('ConsequenciaScreen', () => {
       startRecovery: startRecoveryMock,
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <ConsequenciaScreen />
       </ApiContext.Provider>
@@ -58,7 +58,7 @@ describe('ConsequenciaScreen', () => {
     expect(screen.getByText('Evidência fraca.')).toBeTruthy()
     
     // Start recovery
-    fireEvent.press(screen.getByText('Encarar Chefe de novo'))
+    await fireEvent.press(screen.getByText('Encarar Chefe de novo'))
 
     await waitFor(() => expect(startRecoveryMock).toHaveBeenCalledWith('cap-1'))
     expect(mockRouter.replace).toHaveBeenCalledWith('/capitulos/cap-1')
@@ -75,7 +75,7 @@ describe('ConsequenciaScreen', () => {
       })),
     })
 
-    render(
+    await render(
       <ApiContext.Provider value={api}>
         <ConsequenciaScreen />
       </ApiContext.Provider>
