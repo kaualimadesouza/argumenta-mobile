@@ -9,53 +9,10 @@ import { useResource } from '@/api/useResource'
 import { Loaded } from '@/api/Loaded'
 import { Button } from '@/components/Button'
 import { Chip } from '@/components/Chip'
-import type { BeatResponse, BeatType, ChapterStatus } from '@/api/types'
-
-const CARD_LABEL: Partial<Record<BeatType, string>> = {
-  objective: 'Seu objetivo',
-  hint: 'Dica de repertório',
-}
+import { Beat } from '@/components/Beat'
+import type { ChapterStatus } from '@/api/types'
 
 const WRITABLE: ChapterStatus[] = ['available', 'drafting', 'in_recovery']
-
-function BeatItem({ beat, index }: { beat: BeatResponse; index: number }) {
-  const label = CARD_LABEL[beat.beat_type]
-
-  if (label !== undefined) {
-    const isHint = beat.beat_type === 'hint'
-    return (
-      <View style={[styles.beatCard, !isHint && styles.beatCardObjective]}>
-        <Text style={[styles.kicker, isHint ? styles.kickerHint : styles.kickerObjective]}>
-          {label}
-        </Text>
-        <Text style={styles.cardBody}>{beat.body}</Text>
-      </View>
-    )
-  }
-
-  if (beat.beat_type === 'dialogue') {
-    const who = beat.character_name ?? ''
-    return (
-      <View style={styles.dialogueRow}>
-        {beat.character_portrait ? (
-          <Image source={{ uri: beat.character_portrait }} style={styles.portrait} />
-        ) : (
-          <View style={styles.portraitPlaceholder} />
-        )}
-        <View style={styles.speechContainer}>
-          <Text style={styles.who}>{who}</Text>
-          <Text style={styles.speech}>{beat.body}</Text>
-        </View>
-      </View>
-    )
-  }
-
-  return (
-    <View style={styles.narrationPanel} testID={`beat-narration-${index}`}>
-      <Text style={styles.narrationText}>{beat.body}</Text>
-    </View>
-  )
-}
 
 export default function CenaScreen() {
   const api = useApi()
@@ -71,7 +28,7 @@ export default function CenaScreen() {
             contentContainerStyle={styles.listContent}
             data={chapter.beats}
             keyExtractor={(_, index) => String(index)}
-            renderItem={({ item, index }) => <BeatItem beat={item} index={index} />}
+            renderItem={({ item, index }) => <Beat beat={item} index={index} />}
             ListHeaderComponent={
               <View style={styles.header}>
                 <Button variant="ghost" onPress={() => router.push('/trilha')}>
