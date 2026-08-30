@@ -5,6 +5,8 @@ import { ApiError } from '@/api/ApiError'
 
 import { type Session, SessionContext } from './context'
 
+import { getSavedPushToken, clearPushToken } from './pushStore'
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const api = useApi()
   const [session, setSession] = useState<Session>({ status: 'loading' })
@@ -19,7 +21,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [api])
 
-  const signOut = useCallback(async () => {
+    const signOut = useCallback(async () => {
+    try {
+      const pushToken = await getSavedPushToken()
+      if (pushToken) {
+        await api.removePushDevice({ token: pushToken }).catch(() => undefined)
+        await clearPushToken()
+      }
+    } catch {
+      // Ignore secure store or network errors
+    }
     await api.logout()
     setSession({ status: 'anonymous' })
   }, [api])

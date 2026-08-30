@@ -30,7 +30,9 @@ export interface ArgumentaApi {
   register(body: RegisterRequest): Promise<UserResponse>
   login(body: LoginRequest): Promise<UserResponse>
   loginWithGoogle(body: GoogleLoginRequest): Promise<UserResponse>
-  logout(): Promise<void>
+    logout(): Promise<void>
+  registerPushDevice(payload: { platform: 'ios' | 'android'; token: string }): Promise<void>
+  removePushDevice(payload: { token: string }): Promise<void>
   me(): Promise<MeResponse>
   updateNickname(nickname: string): Promise<UserResponse>
   addTarget(body: AddTargetRequest): Promise<TargetResponse>
@@ -117,9 +119,14 @@ export function createHttpApi(): ArgumentaApi {
     register: async (body) => persistIfPresent(await request('/auth/register', 'POST', body)),
     login: async (body) => persistIfPresent(await request('/auth/login', 'POST', body)),
     loginWithGoogle: async (body) => persistIfPresent(await request('/auth/google', 'POST', body)),
-    logout: async () => {
+        logout: async () => {
       await request('/auth/logout', 'POST')
-      await clearTokens()
+    },
+    registerPushDevice: async (payload) => {
+      await request('/me/push-devices', 'POST', payload)
+    },
+    removePushDevice: async (payload) => {
+      await request('/me/push-devices', 'DELETE', payload)
     },
     me: () => request('/me', 'GET'),
     updateNickname: (nickname) => request('/me', 'PATCH', { nickname }),

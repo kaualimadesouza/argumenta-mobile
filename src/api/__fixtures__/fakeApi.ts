@@ -8,6 +8,8 @@ export function createFakeApi(overrides: Partial<ArgumentaApi> = {}): ArgumentaA
     login: jest.fn(),
     loginWithGoogle: jest.fn(),
     logout: jest.fn(),
+    registerPushDevice: jest.fn(),
+    removePushDevice: jest.fn(),
     me: jest.fn(),
     updateNickname: jest.fn(),
     addTarget: jest.fn().mockResolvedValue({}),

@@ -10,8 +10,46 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ chapterId: 'chapter-1', submissionId: 'sub-1' }),
 }))
 jest.mock('@/hooks/useAppFonts', () => ({ useAppFonts: () => true }))
+jest.mock('@/session/usePushRegistration', () => ({
+  usePushRegistration: () => jest.fn(),
+}))
 
 describe('CorrecaoScreen', () => {
+  it('registers push token when verdict is approved', async () => {
+    const mockRegisterPush = jest.fn()
+    jest.spyOn(require('@/session/usePushRegistration'), 'usePushRegistration').mockReturnValue(mockRegisterPush)
+
+    const api = createFakeApi({
+      submission: jest.fn().mockResolvedValue({
+        submission_id: 'sub-3',
+        attempt_number: 1,
+        status: 'evaluated',
+        result: {
+          verdict: 'approved',
+          average_score: 900,
+          floor_value: 600,
+          min_average: 600,
+          chapter_status: 'passed',
+          scores: [],
+          annotations: [],
+          para_passar: [],
+          lens: { exam: 'enem', version: '1', criteria: [], total: null, total_max: null, scale_source: 'board' },
+        },
+      }),
+      chapter: jest.fn().mockResolvedValue(aChapterResponse({ draft_body: '...' })),
+      reaction: jest.fn().mockResolvedValue({ beat: 'convinced', character_name: 'Boss', body: 'OK', provisional: false }),
+    })
+
+    render(
+      <ApiContext.Provider value={api}>
+        <CorrecaoScreen />
+      </ApiContext.Provider>
+    )
+
+    await waitFor(() => expect(screen.getByText('Você convenceu.')).toBeTruthy())
+    expect(mockRegisterPush).toHaveBeenCalled()
+  })
+
   it('renders full scoreboard (C5 and total) when lens includes them', async () => {
     const api = createFakeApi({
       submission: jest.fn().mockResolvedValue({
