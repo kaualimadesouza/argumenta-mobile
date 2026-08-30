@@ -8,6 +8,12 @@ import { ApiContext } from '@/api/context'
 import { SessionProvider } from './SessionProvider'
 import { useSession } from './context'
 
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: jest.fn(),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}))
+
 function Probe() {
   const { session, signOut, reload } = useSession()
   const label =
@@ -36,6 +42,24 @@ async function renderWithApi(api: Partial<ArgumentaApi>) {
 }
 
 describe('SessionProvider', () => {
+  it('clears push token and notifies API on logout', async () => {
+    require('expo-secure-store').getItemAsync.mockResolvedValueOnce('ExponentPushToken[mocked]')
+    const api = {
+      me: jest.fn().mockResolvedValue({ user: { nickname: 'Kaua' }, targets: [] }),
+      logout: jest.fn().mockResolvedValue(undefined),
+      removePushDevice: jest.fn().mockResolvedValue(undefined),
+    }
+
+    await renderWithApi(api)
+    await screen.findByText('authenticated:Kaua')
+
+    fireEvent.press(screen.getByText('sair'))
+
+    await screen.findByText('anonymous')
+    expect(api.removePushDevice).toHaveBeenCalledWith({ token: 'ExponentPushToken[mocked]' })
+    expect(require('expo-secure-store').deleteItemAsync).toHaveBeenCalledWith('argumenta.push_token')
+  })
+
   it('becomes authenticated once /me answers', async () => {
     const me = jest
       .fn()

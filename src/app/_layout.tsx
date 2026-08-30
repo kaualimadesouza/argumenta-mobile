@@ -1,4 +1,6 @@
-import { Stack } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
+import * as Notifications from 'expo-notifications'
+import { useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { useMemo } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -14,6 +16,22 @@ const SESSION_UNREACHABLE =
 
 function RootNavigator() {
   const { session, reload } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    let isMounted = true
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (!isMounted || !response) return
+      router.replace('/')
+    })
+    const sub = Notifications.addNotificationResponseReceivedListener(() => {
+      router.replace('/')
+    })
+    return () => {
+      isMounted = false
+      sub.remove()
+    }
+  }, [router])
 
   if (session.status === 'loading') return <LoadingPanel />
   if (session.status === 'unavailable') {

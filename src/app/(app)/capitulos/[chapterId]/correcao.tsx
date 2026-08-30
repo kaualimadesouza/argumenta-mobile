@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { usePushRegistration } from '@/session/usePushRegistration'
 import { useCallback } from 'react'
 import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -139,6 +141,13 @@ function headlineFor(submission: SubmissionResponse, antagonist: string): Headli
 function Sheet({ handoff, judged }: { handoff: CorrecaoHandoff; judged: Judged }) {
   const { submission, body } = handoff
   const { chapter, reaction } = judged
+
+  const registerPush = usePushRegistration()
+  useEffect(() => {
+    if (submission.verdict === 'approved') {
+      registerPush()
+    }
+  }, [submission.verdict, registerPush])
   const headline = headlineFor(submission, chapter.antagonist_name)
   const { segments, marks } = annotate(body, submission.annotations)
 
