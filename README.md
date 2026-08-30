@@ -44,3 +44,32 @@ main com conventional commit (`feat:`, `fix:`, ...) alimenta um PR de release;
 mergear esse PR cria a tag semver, a GitHub Release e o `CHANGELOG.md`,
 propagando a versão para `package.json` e `app.json` (`expo.version`). PRs são
 squash-merged com título convencional (validado pelo workflow de título).
+
+## Gerar APK de preview
+
+O projeto está configurado para gerar um APK de preview (instalável direto no Android, sem loja) através do EAS Build. O build usa o profile \`preview\`, configurado em \`eas.json\`, que aponta para a API de produção.
+
+Para gerar o APK:
+
+1. **Login no EAS:**
+   ```bash
+   npx eas-cli login
+   ```
+   (Use a conta do dono do projeto no Expo).
+
+2. **Vincular o projeto:**
+   ```bash
+   npx eas-cli init
+   ```
+   Isso criará um projeto no EAS e gravará o \`projectId\` no \`app.json\`.
+
+3. **Gerar o build Android:**
+   ```bash
+   npx eas-cli build -p android --profile preview
+   ```
+   Se o EAS perguntar sobre gerar um keystore, aceite a opção de **gerenciado pelo Expo**.
+
+4. **Configurar o Google Sign-In:**
+   Após a primeira build, rode \`npx eas-cli credentials -p android\` para ver o SHA-1 do keystore gerenciado pelo EAS. Cadastre esse SHA-1 num novo OAuth Client Android no Google Cloud Console com o package \`com.argumenta.mobile\`. Sem isso, o login por e-mail funciona, mas o botão do Google falhará.
+
+5. Ao fim do build, o EAS fornecerá um link para baixar o APK (`.apk`). Instale no seu aparelho e teste o fluxo completo!
