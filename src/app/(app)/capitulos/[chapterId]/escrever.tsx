@@ -13,8 +13,13 @@ import { countWords } from '@/api/words'
 import { awaitVerdict } from '@/api/verdict'
 import { AUTOSAVE_LABEL, useAutosave } from './useAutosave'
 import { useWritingSignals } from './useWritingSignals'
+import { useLens } from '@/session/context'
 import { blockerOf } from './limits'
 import type { ChapterResponse, TrackResponse, TelemetryEvent } from '@/api/types'
+
+const REQUIREMENTS = ['Tese', 'Justificativa', 'Repertório explicado']
+const ESSAY_PARTS = ['Tese', 'Argumentos com repertório', 'Fechamento']
+const INTERVENTION = 'Proposta de intervenção'
 
 const EVALUATION_FAILED =
   'A correção falhou aqui do nosso lado. Seu envio de hoje foi devolvido, tente de novo.'
@@ -38,6 +43,7 @@ function Notice({ children, tone }: { children: string; tone: 'ok' | 'error' }) 
 function Writing({ chapter, track }: Desk) {
   const api = useApi()
   const router = useRouter()
+  const lens = useLens()
   const signals = useWritingSignals()
   
   const [body, setBody] = useState(chapter.draft_body ?? '')
@@ -58,6 +64,8 @@ function Writing({ chapter, track }: Desk) {
 
   const words = countWords(body)
   const blocker = blockerOf(words, chapter, track)
+  const boss = chapter.kind === 'chefe'
+  const parts = boss ? [...ESSAY_PARTS, ...(lens === 'enem' ? [INTERVENTION] : [])] : REQUIREMENTS
 
   async function send() {
     setSending(true)
@@ -99,11 +107,23 @@ function Writing({ chapter, track }: Desk) {
         </View>
 
         <Text style={styles.title}>
-          {`Convença ${chapter.antagonist_name}`}
+          {boss ? 'Redação-chefe' : `Convença ${chapter.antagonist_name}`}
         </Text>
 
         <View style={styles.card}>
-          <Text style={styles.objective}>{chapter.objective}</Text>
+          {boss ? (
+            <View style={styles.proposal}>
+              <Text style={styles.proposalTitle}>A proposta</Text>
+              <Text style={styles.objective}>{chapter.objective}</Text>
+              <View style={styles.requirements}>
+                {parts.map((part) => (
+                  <Chip key={part} label={part} />
+                ))}
+              </View>
+            </View>
+          ) : (
+            <Text style={styles.objective}>{chapter.objective}</Text>
+          )}
         </View>
 
         <TextInput
@@ -200,6 +220,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.line,
+  },
+  
+  proposal: {
+    gap: 12,
+  },
+  proposalTitle: {
+    fontFamily: fontFamily.medium,
+    fontSize: typeScale.lead,
+    color: colors.ink,
+  },
+  requirements: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
   },
   objective: {
     fontFamily: fontFamily.medium,

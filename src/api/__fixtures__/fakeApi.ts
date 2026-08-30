@@ -20,6 +20,7 @@ export function createFakeApi(overrides: Partial<ArgumentaApi> = {}): ArgumentaA
     telemetry: jest.fn().mockResolvedValue(undefined),
     reaction: jest.fn().mockRejectedValue(new Error('Not implemented')),
     startRecovery: jest.fn().mockResolvedValue(undefined),
+    progress: jest.fn().mockRejectedValue(new Error('Not implemented')),
     ...overrides,
   }
 }

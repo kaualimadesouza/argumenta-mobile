@@ -38,3 +38,10 @@ export function useStudent(): AuthenticatedSession {
   }
   return session
 }
+
+import type { Exam } from '@/api/types'
+
+export function useLens(): Exam {
+  const { targets } = useStudent()
+  return targets.find((target) => target.is_active)?.exam ?? 'enem'
+}
