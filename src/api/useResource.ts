@@ -27,6 +27,7 @@ export function useResource<T>(load: () => Promise<T>): Resource<T> {
   }, [load])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchNow()
   }, [fetchNow])
 

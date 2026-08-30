@@ -63,6 +63,7 @@ export const tracking = {
   title: -0.03,
   lead: -0.02,
   body: -0.011,
+  meta: 0,
 } as const
 
 export const radius = {
