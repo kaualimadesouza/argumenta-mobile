@@ -16,6 +16,7 @@ import type {
   PendingSubmissionResponse,
   SubmissionStateResponse,
   TelemetryBatchRequest,
+  ReactionResponse,
 } from './types'
 
 const NO_CONTENT = 204
@@ -39,6 +40,8 @@ export interface ArgumentaApi {
   submit(chapterId: string, body: SubmissionRequest): Promise<PendingSubmissionResponse>
   submission(id: string): Promise<SubmissionStateResponse>
   telemetry(body: TelemetryBatchRequest): Promise<void>
+  reaction(submissionId: string): Promise<ReactionResponse>
+  startRecovery(chapterId: string): Promise<void>
 }
 
 function apiUrl(path: string): string {
@@ -125,5 +128,7 @@ export function createHttpApi(): ArgumentaApi {
     submit: (chapterId, body) => request(`/chapters/${chapterId}/submissions`, 'POST', body),
     submission: (id) => request(`/submissions/${id}`, 'GET'),
     telemetry: (body) => request('/telemetry/events', 'POST', body),
+    reaction: (submissionId) => request(`/submissions/${submissionId}/reaction`, 'POST'),
+    startRecovery: (chapterId) => request(`/chapters/${chapterId}/recovery`, 'POST'),
   }
 }
